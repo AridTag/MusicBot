@@ -217,6 +217,59 @@ class Playlist(EventEmitter, Serializable):
 
         return entry_list, position
 
+    async def importfirst_from(self, playlist_url, ** meta):
+        """
+            Imports the songs from `playlist_url` and queues them to be played.
+
+            Returns a list of `entries` that have been enqueued.
+
+            :param playlist_url: The playlist url to be cut into individual urls and added to the playlist
+            :param meta: Any additional metadata to add to the playlist entry
+        """
+        position = 1
+        entry_list = []
+
+        try:
+            info = await self.downloader.safe_extract_info(self.loop, playlist_url, download=False)
+        except Exception as e:
+            raise ExtractionError('Could not extract information from {}\n\n{}'.format(playlist_url, e))
+
+        if not info:
+            raise ExtractionError('Could not extract information from %s' % playlist_url)
+
+        # Once again, the generic extractor fucks things up.
+        if info.get('extractor', None) == 'generic':
+            url_field = 'url'
+        else:
+            url_field = 'webpage_url'
+
+        baditems = 0
+        for item in info['entries']:
+            if item:
+                try:
+                    entry = URLPlaylistEntry(
+                        self,
+                        item[url_field],
+                        item.get('title', 'Untitled'),
+                        item.get('duration', 0) or 0,
+                        self.downloader.ytdl.prepare_filename(item),
+                        **meta
+                    )
+
+                    self._add_entry(entry, True)
+                    entry_list.insert(0, entry)
+                except Exception as e:
+                    baditems += 1
+                    log.warning("Could not add item", exc_info=e)
+                    log.debug("Item: {}".format(item), exc_info=True)
+            else:
+                baditems += 1
+
+            if baditems:
+                log.info("Skipped {} bad entries".format(baditems))
+
+        return entry_list, position
+
     async def async_process_youtube_playlist(self, playlist_url, **meta):
         """
             Processes youtube playlists links from `playlist_url` in a questionable, async fashion.
