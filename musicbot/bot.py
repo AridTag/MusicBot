@@ -1792,7 +1792,7 @@ class MusicBot(discord.Client):
             # TODO: I can create an event emitter object instead, add event functions, and every play list might be asyncified
             #       Also have a "verify_entry" hook with the entry as an arg and returns the entry if its ok
 
-            entry_list, position = await player.playlist.import_from(song_url, channel=channel, author=author)
+            entry_list, position = await player.playlist.importfirst_from(song_url, channel=channel, author=author)
 
             tnow = time.time()
             ttime = tnow - t0
