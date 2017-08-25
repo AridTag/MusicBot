@@ -1761,7 +1761,8 @@ class MusicBot(discord.Client):
                 )
 
             if info['extractor'].lower() in ['youtube:playlist', 'soundcloud:set', 'bandcamp:album']:
-                return
+                return Response("Playlists are not supported right now")
+                # TODO: insert playlists at the front. Might as well
                 try:
                     return await self._cmd_play_playlist_async(player, channel, author, permissions, song_url,
                                                                info['extractor'])
