@@ -1839,7 +1839,7 @@ class MusicBot(discord.Client):
                 )
 
             try:
-                entry, position = await player.playlist.add_entry(song_url, channel=channel, author=author)
+                entry, position = await player.playlist.add_entry(song_url, head=True, channel=channel, author=author)
 
             except exceptions.WrongEntryTypeError as e:
                 if e.use_url == song_url:
