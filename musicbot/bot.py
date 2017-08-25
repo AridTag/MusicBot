@@ -1684,6 +1684,8 @@ class MusicBot(discord.Client):
         result from a youtube search is added to the queue.
         """
 
+        return Response('this is definitely playnext', delete_after=30)
+
         if permissions.max_songs and player.playlist.count_for_user(author) >= permissions.max_songs:
             raise exceptions.PermissionsError(
                 "You have reached your enqueued song limit (%s)" % permissions.max_songs, expire_in=30
